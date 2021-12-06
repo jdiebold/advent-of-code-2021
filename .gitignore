@@ -3,3 +3,4 @@
 .vscode
 .scalafmt.conf
 target
+project
