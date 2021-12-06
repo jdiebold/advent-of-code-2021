@@ -1,4 +1,0 @@
-[debug] [root-test] Classpath dependencies List()
-[debug] [root-test] Dependencies from configurations List(root)
-[debug] Bloop wrote the configuration of project 'root-test' to '/Users/jakob.diebold/adventofcode/2021/scala3/.bloop/root-test.json'
-[success] Generated .bloop/root-test.json
