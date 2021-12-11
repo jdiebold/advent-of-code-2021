@@ -1,5 +1,3 @@
-import $dep.`org.scala-lang.modules::scala-parallel-collections:1.0.4`
-import scala.collection.parallel.CollectionConverters._
 val grid = io.Source
   .fromFile("src/main/scala/Day11/input.txt")
   .getLines
@@ -9,7 +7,7 @@ val grid = io.Source
 val dirs =
   List((-1, -1), (-1, 0), (0, -1), (-1, 1), (1, -1), (1, 0), (0, 1), (1, 1))
 
-def neighborFlashed(grid: Seq[Seq[Int]], y: Int, x: Int) =
+def neighborFlashed(grid: Seq[Seq[Int]], y: Int, x: Int): Int =
   dirs.collect {
     case pos
         if !outOfBounds(grid, y + pos._1, x + pos._2) && grid(y + pos._1)(
@@ -18,17 +16,16 @@ def neighborFlashed(grid: Seq[Seq[Int]], y: Int, x: Int) =
       pos
   }.size
 
-def outOfBounds(grid: Seq[Seq[Int]], y: Int, x: Int) =
+def outOfBounds(grid: Seq[Seq[Int]], y: Int, x: Int): Boolean =
   (x < 0 || y < 0 || y >= grid.length || x >= grid(y).length)
 
 def makeStep(grid: Seq[Seq[Int]]): Seq[Seq[Int]] =
   val updatedGrid = grid.map(_.map(_ + 1))
+  def flash(grid: Seq[Seq[Int]]): Seq[Seq[Int]] =
+    if (!grid.flatten.exists(_ >= 10)) grid
+    else
+      flash(increaseNeighbors(grid))
   flash(updatedGrid)
-
-def flash(grid: Seq[Seq[Int]]): Seq[Seq[Int]] =
-  if (!grid.flatten.exists(_ >= 10)) grid
-  else
-    flash(increaseNeighbors(grid))
 
 def increaseNeighbors(grid: Seq[Seq[Int]]): Seq[Seq[Int]] =
   (0 until grid.length).map(y => {
@@ -41,35 +38,15 @@ def increaseNeighbors(grid: Seq[Seq[Int]]): Seq[Seq[Int]] =
   })
 
 //Part I
-(1 to 100).par
+(1 to 100)
   .foldLeft((grid, 0))((b, a) => {
     val newGrid = makeStep(b._1)
     (newGrid, b._2 + newGrid.flatten.count(_ == 0))
   })
   ._2
 
-var flashes = 0
-var count = 0
-def makeStepI(grid: Seq[Seq[Int]]): Seq[Seq[Int]] =
-  if (count == 100) Seq(Seq(flashes))
-  else
-    val newGrid = makeStep(grid)
-    count += 1
-    flashes += newGrid.flatten.count(_ == 0)
-    makeStepI(newGrid)
-
-makeStepI(grid)
 //Part II
-(1 to 1000)
-  .scanLeft(grid)((b, a) => makeStep(b))
-  .indexWhere(_.map(_.max).max == 0)
-
-//recursive
-var step = 0
-def makeStepII(grid: Seq[Seq[Int]]): Seq[Seq[Int]] =
-  if (grid.map(_.max).max == 0) Seq(Seq(step))
-  else
-    step += 1
-    makeStepII(makeStep(grid))
-
-makeStepII(grid)(0)(0)
+Iterator
+  .iterate(grid)(makeStep)
+  .takeWhile(g => !(g.map(_.max).max == 0))
+  .size
