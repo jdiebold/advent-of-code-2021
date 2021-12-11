@@ -1,6 +1,6 @@
 import $dep.`org.scala-lang.modules::scala-parallel-collections:1.0.4`
 import scala.collection.parallel.CollectionConverters._
-var grid = io.Source
+val grid = io.Source
   .fromFile("src/main/scala/Day11/input.txt")
   .getLines
   .map(_.split("").map(_.toInt).toSeq)
@@ -41,11 +41,13 @@ def increaseNeighbors(grid: Seq[Seq[Int]]): Seq[Seq[Int]] =
   })
 
 //Part I
-// (1 to 100).par
-//   .map(i => Function.chain(List.fill(i)(makeStep))(grid))
-//   .flatten
-//   .flatten
-//   .count(_ == 0)
+(1 to 100).par
+  .foldLeft((grid, 0))((b, a) => {
+    val newGrid = makeStep(b._1)
+    (newGrid, b._2 + newGrid.flatten.count(_ == 0))
+  })
+  ._2
+
 var flashes = 0
 var count = 0
 def makeStepI(grid: Seq[Seq[Int]]): Seq[Seq[Int]] =
@@ -58,10 +60,11 @@ def makeStepI(grid: Seq[Seq[Int]]): Seq[Seq[Int]] =
 
 makeStepI(grid)
 //Part II
-// (1 to 250).par
-//   .map(i => Function.chain(List.fill(i)(makeStep))(grid))
-//   .indexWhere(_.map(_.max).max == 0) + 1
+(1 to 1000)
+  .scanLeft(grid)((b, a) => makeStep(b))
+  .indexWhere(_.map(_.max).max == 0)
 
+//recursive
 var step = 0
 def makeStepII(grid: Seq[Seq[Int]]): Seq[Seq[Int]] =
   if (grid.map(_.max).max == 0) Seq(Seq(step))
