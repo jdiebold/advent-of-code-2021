@@ -1,5 +1,5 @@
 val grid = io.Source
-  .fromFile("src/main/scala/Day11/input.txt")
+  .fromFile("src/main/scala/Day11/test.txt")
   .getLines
   .map(_.split("").map(_.toInt).toSeq)
   .toSeq
