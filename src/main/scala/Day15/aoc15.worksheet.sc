@@ -25,6 +25,7 @@ def getNeighbors(pos: (Int, Int), grid: Seq[Seq[Int]]) =
     .toMap
 
 getNeighbors((0, 0), grid)
+
 def dijkstra(graph: Seq[Seq[Int]], source: (Int, Int)) =
   def go(
       active: Set[(Int, Int)],
@@ -67,9 +68,6 @@ val gridII = Iterator
   .take(5)
   .toList
   .flatten
-
-gridII.flatten.size
-(gridII.size - 1, gridII(0).size - 1)
 
 val (distanceII, predecessorsII) = dijkstra(gridII, (0, 0))
 distanceII(gridII.size - 1, gridII(0).size - 1)
