@@ -4,7 +4,7 @@ val input = io.Source
   .toSeq
   .head
 
-case class Packet(version: Int, packetType: Int, packets: List[Packet])
+val binaryInput = parseInput(input)
 
 val packet = "8A004A801A8002F478".flatMap(c =>
   BigInt(c.toString, 16).toString(2).reverse.padTo(4, '0').reverse
@@ -14,7 +14,37 @@ def parseInput(input: String) =
   input.flatMap(c =>
     BigInt(c.toString, 16).toString(2).reverse.padTo(4, '0').reverse
   )
+// Part I
+def parsePacketI(packet: String): (BigInt, BigInt) =
+  if (packet.size < 11) (999, 999)
+  else
+    BigInt(packet.slice(3, 6), 2) match {
+      case 4 => parseLiteral(packet)
+      case _ => {
+        val sub = parseSubPackets(packet.substring(6), _ + _)
+        (BigInt(packet.take(3), 2) + sub._1, sub._2)
+      }
+    }
 
+def parseLiteralI(lit: String) =
+  val digits = lit.substring(6).sliding(5, 5).toList
+  (
+    BigInt(
+      /*digits
+        .take(digits.indexWhere(_.startsWith("0")) + 1)
+        .map(_.substring(1))
+        .mkString,*/
+      lit.take(3),
+      2
+    ),
+    BigInt(
+      digits.take(digits.indexWhere(_.startsWith("0")) + 1).mkString.size + 6
+    )
+  )
+
+parsePacketI(binaryInput)._1
+
+// Part II
 def parsePacket(packet: String): (BigInt, BigInt) =
   if (packet.size < 11) (999, 999)
   else
@@ -122,6 +152,7 @@ def parseNPackets(string: String, n: Int) =
     .tail
     .map(x => (x._1._1, x._2))
 
+// Tests Part I
 val test = "8A004A801A8002F478".flatMap(c =>
   BigInt(c.toString, 16).toString(2).reverse.padTo(4, '0').reverse
 )
@@ -141,11 +172,7 @@ val test4 = "A0016C880162017C3686B18A3D4780".flatMap(c =>
 )
 parsePacket(test4)._1
 
-val binaryInput = input.flatMap(c =>
-  BigInt(c.toString, 16).toString(2).reverse.padTo(4, '0').reverse
-)
-binaryInput.length
-
+// Tests Part II
 parsePacket(parseInput("C200B40A82"))
 parsePacket(parseInput("04005AC33890"))
 parsePacket(parseInput("880086C3E88112"))
@@ -155,5 +182,4 @@ parsePacket(parseInput("F600BC2D8F"))
 parsePacket(parseInput("9C005AC2F8F0"))
 parsePacket(parseInput("9C0141080250320F1802104A08"))
 
-BigInt("1100001011011000000010010010100001001100", 2)
-parsePacket(binaryInput)
+parsePacket(binaryInput)._1
