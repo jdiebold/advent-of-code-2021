@@ -49,12 +49,14 @@ def shoot(
 (Math.round(Math.sqrt(input(0).map(_.abs).min * 2)).toInt - 5 to Math
   .round(Math.sqrt(input(0).map(_.abs).max * +2))
   .toInt)
-  .flatMap(vx => (0 to 1500).flatMap(vy => shoot((0, 0), (vx, vy), input)))
+  .flatMap(vx => (0 to 1000).flatMap(vy => shoot((0, 0), (vx, vy), input)))
   .flatten
   .map(_._2)
   .max
 
 // Part II
 (Math.round(Math.sqrt(input(0).map(_.abs).min * 2)).toInt - 5 to input(0).max)
-  .flatMap(vx => (-1000 to 1500).flatMap(vy => shoot((0, 0), (vx, vy), input)))
+  .flatMap(vx =>
+    (input(1).min to 1000).flatMap(vy => shoot((0, 0), (vx, vy), input))
+  )
   .size
