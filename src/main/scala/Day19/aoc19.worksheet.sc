@@ -5,7 +5,7 @@ import breeze.numerics._
 import scala.collection.parallel.CollectionConverters._
 
 val sensors = io.Source
-  .fromFile("src/main/scala/Day19/test.txt")
+  .fromFile("src/main/scala/Day19/input.txt")
   .mkString
   .split("--- scanner \\d+ ---\\n")
   .toSeq
@@ -60,7 +60,7 @@ val permutations = rotations.toSet ++
 def normalizeBeacons(
     left: Seq[DenseVector[Int]],
     right: Seq[DenseVector[Int]]
-): Option[Seq[DenseVector[Int]]] =
+): Option[(Seq[DenseVector[Int]], DenseVector[Int])] =
   val matchingBeacons = for {
     left <- calcDistances(left)
     right <- calcDistances(right)
@@ -73,22 +73,33 @@ def normalizeBeacons(
     .map(b =>
       val rightSensorPosition =
         b._1 - b._3 * b._2
-      (left ++ (right.map(
-        b._3 * _ + rightSensorPosition
-      ))).distinct
+      (
+        (left ++ (right.map(
+          b._3 * _ + rightSensorPosition
+        ))).distinct,
+        rightSensorPosition
+      )
     )
 
-Iterator
-  .iterate((sensors.head, sensors.tail))(i =>
+val (beacons, rest, normalizedSensors) = Iterator
+  .iterate((sensors.head, sensors.tail, Seq(DenseVector(0, 0, 0))))(i =>
     val res = for {
       other <- i._2
       newPoints = normalizeBeacons(i._1, other)
       if (newPoints.isDefined)
     } yield (newPoints.get, other)
-    (res(0)._1, i._2.filter(_ != res(0)._2))
+    (res(0)._1._1, i._2.filter(_ != res(0)._2), i._3 :+ res(0)._1._2)
   )
   .find(_._2.isEmpty)
   .get
-  ._1
-  .distinct
-  .size
+
+//Part I
+beacons.distinct.size
+
+//Part II
+normalizedSensors
+  .combinations(2)
+  .map(sensorPair => manhattanDistance(sensorPair(0), sensorPair(1)))
+  .toSeq
+  .max
+  .toInt
