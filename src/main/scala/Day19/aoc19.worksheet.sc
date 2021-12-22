@@ -1,3 +1,7 @@
+import $dep.`org.scalanlp::breeze:2.0.1-RC1`
+import breeze.linalg._
+import breeze.numerics._
+
 val input = io.Source
   .fromFile("src/main/scala/Day19/test.txt")
   .mkString
@@ -5,24 +9,33 @@ val input = io.Source
   .toSeq
   .tail
   .map(_.split("\\n").toSeq.map(_.split(",").map(_.toInt).toSeq))
+  .map(_.map(v => DenseVector(v.toArray)))
 
-val _0 = input(0)
-val _1 = input(1)
+val vector = DenseVector(1, 2, 3)
+val matrix = DenseMatrix((0, 0, 1), (1, 0, 0), (0, 1, 0))
+val vector2 = DenseVector(1, 2, 3)
 
-def calcDistances(signals: Seq[Seq[Int]]) =
+matrix * vector
+
+def calcDistances(
+    sensor: Seq[DenseVector[Int]]
+): Seq[(DenseVector[Int], Seq[DenseVector[Int]])] =
   for {
-    pair <- signals.combinations(2).toSeq
-    dist = pair(0).zip(pair(1)).map(x => (x._1 - x._2).abs).sorted
-  } yield (pair, dist)
+    beacon <- sensor
+    dist = input(0).map(_ - beacon)
+  } yield (beacon, dist)
 
-def calcOverlap(scanner1: Seq[Seq[Int]], scanner2: Seq[Seq[Int]]) =
-  calcDistances(scanner2)
-    .filter(d => calcDistances(scanner1).map(_._2).contains(d._2))
-    .flatMap(_._1)
-    .distinct
-    .size
-
-input
-  .combinations(2)
-  .filter(p => calcOverlap(p(0), p(1)) == 12)
-  .toSeq
+val rotations = Seq(
+  // turn around y
+  DenseMatrix((0, 0, 1), (0, 1, 0), (-1, 0, 0)),
+  DenseMatrix((-1, 0, 0), (0, 1, 0), (0, 0, -1)),
+  DenseMatrix((0, 0, -1), (0, 1, 0), (1, 0, 0)),
+  // turn around x
+  DenseMatrix((1, 0, 0), (0, 0, -1), (0, 1, 0)),
+  DenseMatrix((1, 0, 0), (0, -1, 0), (0, 0, -1)),
+  DenseMatrix((1, 0, 0), (0, 1, 0), (0, -1, 0)),
+  // turn around z
+  DenseMatrix((0, 1, 0), (-1, 0, 0), (0, 0, 1)),
+  DenseMatrix((-1, 0, 0), (-1, 0, 0), (0, 0, 1)),
+  DenseMatrix((0, -1, 0), (0, 1, 0), (0, 0, 1))
+)

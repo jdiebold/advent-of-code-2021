@@ -31,26 +31,6 @@ val finalScore = Iterator
 
 deterministicDie.next._2 * finalScore._1.map(_._1).min
 
-// Part II
-// 1x steps 3 , 9
-1 + 1 + 1
-3 + 3 + 3
-
-// 3x steps 4,8
-1 + 1 + 2
-3 + 3 + 2
-// 6x  step 5
-1 + 1 + 3
-2 + 2 + 1
-
-//1*6+1*1=  7x step 6
-1 + 2 + 3 // *6
-2 + 2 + 2
-
-// 2* 3 = 6 x step 7
-2 + 2 + 3
-3 + 3 + 1
-
 // steps -> how many times
 val possibleOutcomes =
   Map(3 -> 1, 9 -> 1, 4 -> 3, 5 -> 6, 8 -> 3, 6 -> 7, 7 -> 6)
@@ -75,7 +55,3 @@ def calcQuantumWinner(
       .reduceLeft((l, r) => l.zip(r).map(i => i._1 + i._2))
 
 calcQuantumWinner(players, 0)
-//
-//0 -> 570239341223618
-//
-//1 -> 371697814511699
